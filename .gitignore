@@ -14,3 +14,6 @@ __pycache__/
 
 # 临时文件
 *.bat
+
+# 浏览器测试快照
+.playwright-mcp/

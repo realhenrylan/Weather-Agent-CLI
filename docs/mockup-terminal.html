@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Agent CLI — UI Mockup v2</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 20px;
+  }
+  .terminal {
+    background: #0d1117;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    width: 820px;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid #30363d;
+  }
+  .titlebar {
+    background: #161b22;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #30363d;
+    user-select: none;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .title-text {
+    color: #8b949e;
+    font-size: 12px;
+    margin-left: 12px;
+    font-family: -apple-system, sans-serif;
+  }
+  .body {
+    padding: 20px 24px 0;
+    min-height: 520px;
+  }
+
+  /* ── Colors ── */
+  .blue   { color: #58a6ff; }
+  .blue2  { color: #79c0ff; }
+  .red    { color: #f85149; }
+  .dim    { color: #484f58; }
+  .bold   { font-weight: 600; }
+  .white  { color: #e6edf3; }
+  .gray   { color: #8b949e; }
+
+  /* ── Components ── */
+
+  /* Banner */
+  .banner {
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    text-align: center;
+  }
+  .banner .title {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .banner .sub {
+    font-size: 12px;
+    color: #8b949e;
+    margin-top: 3px;
+  }
+
+  /* Input prompt */
+  .prompt-box {
+    margin-bottom: 12px;
+  }
+  .prompt-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background: #161b22;
+  }
+  .prompt-line:focus-within { border-color: #58a6ff; }
+  .prompt-arrow { color: #58a6ff; font-size: 15px; flex-shrink: 0; }
+  .prompt-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e6edf3;
+    font-size: 14px;
+    flex: 1;
+    font-family: inherit;
+  }
+  .prompt-hint {
+    font-size: 11px;
+    color: #484f58;
+    margin-top: 3px;
+    padding-left: 4px;
+  }
+
+  /* Scanner bar (Knight Rider) */
+  .scanner-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #8b949e;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  .scanner {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+  }
+  .scanner-cell {
+    width: 6px; height: 12px;
+    border-radius: 1px;
+    background: #21262d;
+  }
+  .scanner-cell.active {
+    background: #58a6ff;
+    box-shadow: 0 0 6px #58a6ff;
+    animation: scan 1.2s ease-in-out infinite;
+  }
+  @keyframes scan {
+    0%, 100% { opacity: 1; transform: translateX(0); }
+    50% { opacity: 0.6; }
+  }
+
+  /* Tool call line */
+  .tool-call {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 4px;
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  .tool-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #56b6c2;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .tool-dot.red { background: #f85149; }
+  .tool-name { color: #56b6c2; font-weight: 600; }
+  .tool-args { color: #c9d1d9; }
+  .tool-status { color: #8b949e; font-size: 12px; }
+  .tool-connector {
+    color: #484f58;
+    font-size: 13px;
+    width: 16px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  /* Result panel */
+  .panel {
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .panel.blue {
+    border: 1px solid #58a6ff;
+    background: rgba(88, 166, 255, 0.04);
+    margin-left: 24px;
+  }
+  .panel.red {
+    border: 1px solid #f85149;
+    background: rgba(248, 81, 73, 0.04);
+    margin-left: 24px;
+  }
+  .panel-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .panel-body { display: flex; gap: 24px; flex-wrap: wrap; }
+  .stat { display: flex; gap: 4px; align-items: center; }
+  .stat-label {
+    color: #8b949e; font-size: 11px;
+    background: #21262d;
+    padding: 0 5px;
+    border-radius: 2px;
+  }
+  .stat-value { color: #e6edf3; }
+  .stat-col { display: flex; flex-direction: column; gap: 4px; min-width: 100px; }
+
+  /* Separator */
+  .sep {
+    border: none;
+    border-top: 1px solid #21262d;
+    margin: 12px 0;
+  }
+
+  /* Goodbye */
+  .goodbye {
+    text-align: center;
+    color: #8b949e;
+    padding: 10px;
+    border: 1px dashed #30363d;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  /* Error panel content */
+  .error-detail {
+    color: #f85149;
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    border-top: 1px solid #21262d;
+    background: #0d1117;
+    padding: 6px 16px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #484f58;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .status-left  { display: flex; align-items: center; gap: 12px; }
+  .status-right { display: flex; align-items: center; gap: 12px; }
+  .status-tag {
+    display: inline-block;
+    padding: 0 5px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .tag-model  { color: #58a6ff; }
+  .tag-ok     { background: rgba(88,166,255,0.15); color: #58a6ff; }
+  .tag-warn   { background: rgba(210,153,34,0.15); color: #d29922; }
+  .tag-idle   { color: #484f58; }
+  .tag-running{ color: #58a6ff; }
+
+  /* Session summary footer */
+  .summary-line {
+    font-size: 11px;
+    color: #484f58;
+    margin-bottom: 4px;
+    padding: 2px 0;
+    margin-left: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="terminal">
+
+  <!-- ═══ TITLE BAR ═══ -->
+  <div class="titlebar">
+    <div class="dot r"></div>
+    <div class="dot y"></div>
+    <div class="dot g"></div>
+    <span class="title-text">☀ weather-cli</span>
+  </div>
+
+  <div class="body">
+
+    <!-- ═══ BANNER ═══ -->
+    <div class="banner">
+      <div class="title">☀ Weather Agent CLI</div>
+      <div class="sub">
+        deepseek-chat · Hefeng &nbsp;·&nbsp; v1.0.0 &nbsp;·&nbsp; <span class="gray">输入 q 或 Ctrl+C 退出</span>
+      </div>
+    </div>
+
+    <!-- ═══ Turn 1: SUCCESS ═══ -->
+
+    <div class="prompt-box">
+      <div class="prompt-line">
+        <span class="prompt-arrow">❯</span>
+        <input class="prompt-input" type="text" value="北京今天冷吗？" readonly>
+      </div>
+    </div>
+
+    <div class="tool-call">
+      <div class="tool-dot"></div>
+      <div>
+        <span class="tool-name">get_weather</span>
+        <span class="tool-args">(北京)</span>
+        <span class="tool-status"> · <span class="blue">⬝⬝⬝⬝■⬝⬝⬝</span> 0.8s</span>
+      </div>
+    </div>
+
+    <div class="panel blue">
+      <div class="panel-title">📍 北京 · 实时天气</div>
+      <div class="panel-body">
+        <div class="stat-col">
+          <div class="stat"><span class="stat-label">天气</span><span class="stat-value">☁ 多云</span></div>
+          <div class="stat"><span class="stat-label">温度</span><span class="stat-value bold">22°C</span></div>
+          <div class="stat"><span class="stat-label">体感</span><span class="stat-value">21°C</span></div>
+        </div>
+        <div class="stat-col">
+          <div class="stat"><span class="stat-label">风向</span><span class="stat-value">南风</span></div>
+          <div class="stat"><span class="stat-label">风力</span><span class="stat-value">2 级</span></div>
+          <div class="stat"><span class="stat-label">湿度</span><span class="stat-value">45%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-line">▣ 回答完成 · 耗时 1.2s</div>
+
+    <hr class="sep">
+
+    <!-- ═══ Turn 2: LLM CHAT (non-weather) ═══ -->
+
+    <div class="prompt-box">
+      <div class="prompt-line">
+        <span class="prompt-arrow">❯</span>
+        <input class="prompt-input" type="text" value="今天适合出门吗？" readonly>
+      </div>
+    </div>
+
+    <div class="tool-call">
+      <div class="tool-dot"></div>
+      <div>
+        <span class="tool-name">get_weather</span>
+        <span class="tool-args">(北京)</span>
+        <span class="tool-status"> · <span class="blue">⬝⬝■⬝⬝⬝⬝⬝</span> 0.6s</span>
+      </div>
+    </div>
+
+    <div class="panel blue">
+      <div class="panel-title" style="color:#58a6ff;">💬 LLM 回答</div>
+      <div class="panel-body" style="flex-direction:column; gap:4px;">
+        <div class="white">
+          北京今天<span class="bold">多云</span>，温度 <span class="bold">22°C</span>，体感舒适，<span class="blue">很适合出门</span>。
+          南风 2 级风力不大，湿度 45% 也不闷。建议带件薄外套，傍晚可能会稍凉。
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-line">▣ 回答完成 · 耗时 2.1s</div>
+
+    <hr class="sep">
+
+    <!-- ═══ Turn 3: ERROR ═══ -->
+
+    <div class="prompt-box">
+      <div class="prompt-line">
+        <span class="prompt-arrow">❯</span>
+        <input class="prompt-input" type="text" value="东京天气" readonly>
+      </div>
+    </div>
+
+    <div class="tool-call">
+      <div class="tool-dot red"></div>
+      <div>
+        <span class="tool-name">get_weather</span>
+        <span class="tool-args">(东京)</span>
+        <span class="tool-status"> · <span class="blue">⬝⬝⬝⬝⬝⬝■⬝</span> <span class="red">× 失败</span></span>
+      </div>
+    </div>
+
+    <div class="panel red">
+      <div class="panel-title" style="color:#f85149;">✗ 查询失败</div>
+      <div class="panel-body">
+        <span class="error-detail">找不到城市：东京。请检查城市名称拼写，或尝试英文名 Tokyo。</span>
+      </div>
+    </div>
+
+    <div class="summary-line">▣ 回答完成 · 耗时 0.9s</div>
+
+    <hr class="sep">
+
+    <!-- ═══ Turn 4: EXIT ═══ -->
+
+    <div class="prompt-box">
+      <div class="prompt-line">
+        <span class="prompt-arrow">❯</span>
+        <input class="prompt-input" type="text" value="q" readonly>
+      </div>
+      <div class="prompt-hint">按 Ctrl+D 或输入 exit 也可以退出</div>
+    </div>
+
+    <div class="goodbye">
+      👋 再见！
+    </div>
+
+  </div>
+
+  <!-- ═══ STATUS BAR ═══ -->
+  <div class="status-bar">
+    <div class="status-left">
+      <span class="tag-model">●</span>
+      <span>deepseek-chat</span>
+      <span class="status-tag tag-ok">已配置</span>
+      <span class="dim">|</span>
+      <span>上下文: 1.2K tokens</span>
+      <span class="dim" style="margin:0 4px;">|</span>
+      <span style="font-family:monospace; color:#58a6ff;">
+        <span style="color:#21262d;">▬▬▬</span><span style="color:#3b82f6;">▬</span><span style="color:#58a6ff;">▬</span><span style="color:#60a5fa;">▬</span><span style="color:#93c5fd;">▬</span><span style="color:#60a5fa;">▬</span><span style="color:#3b82f6;">▬</span><span style="color:#21262d;">▬▬▬</span>
+      </span>
+    </div>
+    <div class="status-right">
+      <span class="tag-running">running</span>
+      <span class="dim">|</span>
+      <span>weather-cli v1.0.0</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

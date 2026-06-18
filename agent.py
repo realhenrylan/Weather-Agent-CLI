@@ -1,14 +1,31 @@
-import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+import sys
+import io
+import argparse
 
 import requests
-from langchain.tools import tool
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.prompts import ChatPromptTemplate
+from langchain.tools import tool
 from langchain_openai import ChatOpenAI
+
 from config import load_config, setup_config
+from ui import (
+    console,
+    make_error_panel,
+    make_llm_panel,
+    make_weather_panel,
+    print_banner,
+    print_goodbye,
+    print_separator,
+    print_summary,
+    process_with_live,
+    ask_input,
+)
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 _config = None
+
 
 @tool
 def get_weather(city: str) -> str:
@@ -20,7 +37,7 @@ def get_weather(city: str) -> str:
     WEATHER_URL = f"https://{qw_host}/v7/weather/now"
 
     params = {"location": city, "key": qw_key}
-    resp = requests.get(CITY_URL, params=params, timeout = 10)
+    resp = requests.get(CITY_URL, params=params, timeout=10)
     data = resp.json()
     city_list = data.get("location", [])
     if not city_list:
@@ -29,7 +46,9 @@ def get_weather(city: str) -> str:
     city_name = city_list[0]["name"]
 
     headers = {"X-QW-Api-Key": qw_key}
-    resp_w = requests.get(WEATHER_URL, params={"location": city_id}, headers=headers, timeout = 10)
+    resp_w = requests.get(
+        WEATHER_URL, params={"location": city_id}, headers=headers, timeout=10
+    )
     w = resp_w.json()
     if w.get("code") != "200":
         return f"查询{city_name}天气失败"
@@ -40,45 +59,79 @@ def get_weather(city: str) -> str:
 def main():
     global _config
 
-    #先加载配置，如果没有配置就首次引导
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action="store_true", help="显示 LangChain 详细日志")
+    args = parser.parse_args()
+
     config = load_config()
     if config is None:
         config = setup_config()
-        _config = config   #赋值给全局变量，让@tool能够读到
+        _config = config
     else:
         _config = config
 
-    #从配置中读取各项值
     llm_key = config["llm_api_key"]
     llm_url = config["llm_base_url"]
     llm_model = config["llm_model"]
-    qw_key = config["qweather_key"]
-    qw_host = config["qweather_host"]
 
     llm = ChatOpenAI(
-        model = llm_model,
-        temperature = 0,
-        openai_api_key = llm_key,
-        openai_api_base = llm_url
+        model=llm_model,
+        temperature=0,
+        openai_api_key=llm_key,
+        openai_api_base=llm_url,
     )
 
     tools = [get_weather]
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "你是一个智能天气助手，可以查询任意城市的实时天气"),
-        ("user", "{input}"),
-        ("placeholder", "{agent_scratchpad}")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "你是一个智能天气助手，可以查询任意城市的实时天气。当用户询问天气时，使用 get_weather 工具查询。如果是非天气相关的闲聊，直接回答。",
+            ),
+            ("user", "{input}"),
+            ("placeholder", "{agent_scratchpad}"),
+        ]
+    )
     agent = create_tool_calling_agent(llm, tools, prompt)
-    executor = AgentExecutor(agent=agent, tools=tools, verbose=True, max_iterations=5)
+    executor = AgentExecutor(
+        agent=agent,
+        tools=tools,
+        verbose=args.debug,
+        max_iterations=5,
+        return_intermediate_steps=True,
+    )
 
-    print("天气查询 Agent 已启动，输入 q 退出")
+    print_banner(config)
+
     while True:
-        query = input("\n想查天气、闲聊都可以哦：")
-        if query.lower() == "q":
+        try:
+            query = ask_input()
+        except (KeyboardInterrupt, EOFError):
             break
-        result = executor.invoke({"input": query})
-        print(f"\n{result['output']}")
+
+        if query.lower() in ("q", "exit", "quit"):
+            break
+
+        output, error, elapsed = process_with_live(console, config, executor, query)
+
+        if error:
+            console.print(make_error_panel(error))
+        elif output and "实时天气" in output:
+            panel = make_weather_panel(output)
+            if panel:
+                console.print(panel)
+            else:
+                console.print(make_llm_panel(output))
+        elif output:
+            console.print(make_llm_panel(output))
+        else:
+            console.print(make_error_panel("无返回结果"))
+
+        print_summary(elapsed)
+        print_separator()
+
+    print_goodbye()
+
 
 if __name__ == "__main__":
     main()
-

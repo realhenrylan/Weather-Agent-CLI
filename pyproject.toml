@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "requests",
     "python-dotenv",
+    "rich>=13.0",
     "langchain>=0.3,<0.4",
     "langchain-openai>=0.3,<0.4",
     "langchain-core>=0.3,<0.4",
@@ -19,4 +20,4 @@ requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ["agent", "config"]
+py-modules = ["agent", "config", "ui"]
