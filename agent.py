@@ -2,6 +2,15 @@ import sys
 import io
 import argparse
 
+# 确保 stdout 使用 UTF-8 编码（Windows 需要，Linux/macOS 已默认 UTF-8）
+if sys.stdout.encoding != "utf-8":
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer,
+        encoding="utf-8",
+        errors="replace",
+        line_buffering=True,
+    )
+
 import requests
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.prompts import ChatPromptTemplate
@@ -22,7 +31,6 @@ from ui import (
     ask_input,
 )
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 _config = None
 
