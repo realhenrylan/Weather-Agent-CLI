@@ -23,24 +23,28 @@ A CLI weather agent powered by **DeepSeek LLM** + **LangChain** + **Hefeng (QWea
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.10+
 - [和风天气 / QWeather](https://dev.qweather.com/) API key (free tier works)
 
-### Install
+### One-Command Install (Unix / Git Bash)
 
 ```bash
-# Clone the repo
+curl -fsSL https://raw.githubusercontent.com/realhenrylan/Weather-Agent-CLI/main/install.sh | bash
+```
+
+### Manual Install
+
+```bash
+# Install directly from GitHub via pip
+pip install git+https://github.com/realhenrylan/Weather-Agent-CLI.git
+
+# Or clone and install locally
 git clone https://github.com/realhenrylan/Weather-Agent-CLI.git
 cd Weather-Agent-CLI
-
-# Create virtual environment (recommended)
-python -m venv .venv
-.venv\Scripts\activate   # Windows
-source .venv/bin/activate # Linux/macOS
-
-# Install
-pip install -e .
+pip install .
 ```
+
+> Windows: use `pip install git+https://github.com/realhenrylan/Weather-Agent-CLI.git` in PowerShell (管理员) or use Git Bash for the one-command script.
 
 ### Configure
 
