@@ -1,7 +1,7 @@
-import requests
 import sys, io
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
+import requests
 from langchain.tools import tool
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.prompts import ChatPromptTemplate
@@ -20,7 +20,7 @@ def get_weather(city: str) -> str:
     WEATHER_URL = f"https://{qw_host}/v7/weather/now"
 
     params = {"location": city, "key": qw_key}
-    resp = requests.get(CITY_URL, params=params)
+    resp = requests.get(CITY_URL, params=params, timeout = 10)
     data = resp.json()
     city_list = data.get("location", [])
     if not city_list:
@@ -29,7 +29,7 @@ def get_weather(city: str) -> str:
     city_name = city_list[0]["name"]
 
     headers = {"X-QW-Api-Key": qw_key}
-    resp_w = requests.get(WEATHER_URL, params={"location": city_id}, headers=headers)
+    resp_w = requests.get(WEATHER_URL, params={"location": city_id}, headers=headers, timeout = 10)
     w = resp_w.json()
     if w.get("code") != "200":
         return f"查询{city_name}天气失败"

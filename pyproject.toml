@@ -12,4 +12,4 @@ dependencies = [
 ]
 
 [project.scripts]
-weather-cli = "weather_CLI.agent:main"
+weather-cli = "agent:main"

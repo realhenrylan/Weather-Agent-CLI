@@ -1,6 +1,5 @@
 from pathlib import Path
 import json
-import os
 
 #定义配置目录和配置文件路径
 CONFIG_DIR = Path.home() / ".weather-cli"    #Path.home()可以获取用户主目录
@@ -16,7 +15,7 @@ def load_config():
         return None   #文件不存在
     
 def save_config(llm_key, llm_url, llm_model, qw_key, qw_host):
-    """保存配置到 ~/ .weatehr-cli/config.json"""
+    """保存配置到 ~/ .weather-cli/config.json"""
     #首先确保目录存在，如果目录不存在就创建
     # parents = True 表示如果上级目录也不存在，就一并创建
     # exist_ok = True 表示如果目录已存在，就不报错
