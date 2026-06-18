@@ -6,7 +6,7 @@ from langchain.tools import tool
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from .config import load_config, setup_config
+from config import load_config, setup_config
 
 _config = None
 

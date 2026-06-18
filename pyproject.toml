@@ -13,3 +13,10 @@ dependencies = [
 
 [project.scripts]
 weather-cli = "agent:main"
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["agent", "config"]
