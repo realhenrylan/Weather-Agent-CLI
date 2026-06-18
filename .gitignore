@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# 虚拟环境
+.venv/
+
+# API 密钥 — 绝对不能提交到版本控制
+.env
+
+# 编辑器个人偏好
+.vscode/
+
+# 临时文件
+*.bat

@@ -1,0 +1,15 @@
+[project]
+name = "weather-cli"
+version = "1.0.0"
+description = "和风天气 CLI Agent"
+requires-python = ">=3.12"
+dependencies = [
+    "requests",
+    "python-dotenv",
+    "langchain>=0.3,<0.4",
+    "langchain-openai>=0.3,<0.4",
+    "langchain-core>=0.3,<0.4",
+]
+
+[project.scripts]
+weather-cli = "weather_CLI.agent:main"
