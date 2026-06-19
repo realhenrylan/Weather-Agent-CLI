@@ -140,6 +140,16 @@ def print_separator():
     console.print(f"[{DARKER}]──────────────────────────────────[/]")
 
 
+def print_memory_cleared():
+    console.print()
+    panel = Panel(
+        Text("🧹 记忆已清除", style=WHITE, justify="center"),
+        border_style=BLUE,
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+
 def print_goodbye():
     console.print()
     panel = Panel(

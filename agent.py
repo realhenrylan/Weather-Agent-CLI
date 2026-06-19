@@ -28,6 +28,7 @@ from ui import (
     make_weather_panel,
     print_banner,
     print_goodbye,
+    print_memory_cleared,
     print_separator,
     print_summary,
     process_with_live,
@@ -106,7 +107,9 @@ def main():
     )
     # 记忆系统：让 agent 记住对话历史（查过的城市、用户姓名等）
     warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    memory = ConversationBufferMemory(
+        memory_key="chat_history", return_messages=True, output_key="output"
+    )
     agent = create_tool_calling_agent(llm, tools, prompt)
     executor = AgentExecutor(
         agent=agent,
@@ -127,6 +130,18 @@ def main():
 
         if query.lower() in ("q", "exit", "quit"):
             break
+
+        if query.strip() in (
+            "清除记忆",
+            "重置",
+            "清空记录",
+            "清空记忆",
+            "clear memory",
+        ):
+            memory.clear()
+            print_memory_cleared()
+            print_separator()
+            continue
 
         output, error, elapsed = process_with_live(console, config, executor, query)
 
