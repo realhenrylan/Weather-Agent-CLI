@@ -1,3 +1,5 @@
+import shutil
+import subprocess
 import sys
 import io
 import argparse
@@ -20,7 +22,7 @@ from langchain.tools import tool
 from langchain_core._api import LangChainDeprecationWarning
 from langchain_openai import ChatOpenAI
 
-from config import load_config, setup_config
+from config import CONFIG_DIR, load_config, setup_config
 from ui import (
     console,
     make_error_panel,
@@ -31,6 +33,7 @@ from ui import (
     print_memory_cleared,
     print_separator,
     print_summary,
+    print_uninstall_done,
     process_with_live,
     ask_input,
 )
@@ -142,6 +145,19 @@ def main():
             print_memory_cleared()
             print_separator()
             continue
+
+        if query.strip() in ("卸载", "uninstall", "🗑"):
+            print_separator()
+            # 删除配置文件
+            if CONFIG_DIR.exists():
+                shutil.rmtree(CONFIG_DIR)
+            # pip 卸载
+            subprocess.run(
+                [sys.executable, "-m", "pip", "uninstall", "weather-cli", "-y"],
+                capture_output=True,
+            )
+            print_uninstall_done()
+            break
 
         output, error, elapsed = process_with_live(console, config, executor, query)
 

@@ -5,6 +5,7 @@
 ### 新增
 - 对话记忆：`ConversationBufferMemory` 使 agent 能记住历史对话（查过的城市、用户姓名等）
 - 记忆清除命令：输入 `清除记忆` / `重置` / `清空记录` / `clear memory` 可清空对话历史
+- 卸载命令：输入 `卸载` / `uninstall` 可删除配置、卸载 pip 包、完全移除 weather-cli
 
 ## [1.1.0] — 2026-06-18
 

@@ -160,6 +160,16 @@ def print_goodbye():
     console.print(panel)
 
 
+def print_uninstall_done():
+    console.print()
+    panel = Panel(
+        f"[{WHITE}]🗑 已卸载 weather-cli[/]\n[{GRAY}]配置文件和缓存已清除[/]",
+        border_style=RED,
+        padding=(1, 2),
+    )
+    console.print(panel)
+
+
 def _parse_weather(text):
     m = re.match(
         r"^(.+?)实时天气：天气(.+?)，温度(-?\d+\.?\d*?)°C，体感(-?\d+\.?\d*?)°C，(.+?)(\d+)级，湿度(\d+)%$",
