@@ -2,8 +2,9 @@ import re
 import threading
 import time
 
+import pyfiglet
 from langchain_core.callbacks import BaseCallbackHandler
-from rich.console import Console
+from rich.console import Console, Group
 from rich.live import Live
 from rich.panel import Panel
 from rich.prompt import Prompt
@@ -69,17 +70,46 @@ class ToolCaptureHandler(BaseCallbackHandler):
             self.tool_args = str(input_str)
 
 
-def print_banner(config):
-    model_name = config.get("llm_model", "unknown")
-    version = "1.0.0"
-    panel = Panel(
-        f"[bold {WHITE}]☀ Weather Agent CLI[/]\n"
-        f"[{GRAY}]{model_name} · Hefeng · v{version}[/]\n"
-        f"[{GRAY}]输入 q 或 Ctrl+C 退出[/]",
-        border_style=DARK,
-        padding=(1, 2),
-    )
-    console.print(panel)
+def play_startup_animation(config):
+    """播放启动动画：逐行展示 figlet 'WEATHER CLI' + 版本号（约 2.5s）"""
+    text = "WEATHER CLI"
+    fig = pyfiglet.Figlet(font="standard")
+    raw = fig.renderText(text)
+    fig_lines = raw.rstrip("\n").split("\n")
+
+    version = config.get("version", "1.2.0")
+    version_line = f"                    v{version}"
+
+    total_start = time.time()
+
+    with Live(console=console, refresh_per_second=30, transient=True) as live:
+        rendered = []
+        for line in fig_lines:
+            if not line.strip():
+                rendered.append(Text(""))
+                live.update(Group(*rendered))
+                time.sleep(0.05)
+                continue
+
+            # 从左到右扫描效果
+            for i in range(1, len(line) + 1):
+                scan_part = Text(line[:i], style=BLUE)
+                content = Group(*rendered, scan_part)
+                live.update(content)
+                time.sleep(0.005)  # 5ms/char
+
+            rendered.append(Text(line, style=BLUE))
+
+            # 控制行间节奏
+            elapsed = time.time() - total_start
+            if elapsed < 2.0:
+                time.sleep(0.1)
+
+        # 版本号渐显
+        ver = Text(version_line, style=GRAY)
+        content = Group(*rendered, Text(""), ver)
+        live.update(content)
+        time.sleep(0.5)
 
 
 def ask_input():

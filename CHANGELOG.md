@@ -1,5 +1,15 @@
 # 更新日志
 
+## [1.3.0] — 2026-06-19
+
+### 新增
+- 启动动画：`play_startup_animation()` 替代静态横幅，逐行扫描显示 figlet "WEATHER CLI" 大字 + 版本号（约 2.5s）
+- 依赖：`pyfiglet>=1.0`（figlet 字体渲染）
+
+### 修改
+- `ui.py`：重构了启动展示，删除 `print_banner`，新增 `play_startup_animation`
+- `agent.py`：调用 `play_startup_animation` 替代 `print_banner`
+
 ## [1.2.0] — 2026-06-19
 
 ### 新增

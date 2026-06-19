@@ -24,18 +24,18 @@ from langchain_openai import ChatOpenAI
 
 from config import CONFIG_DIR, load_config, setup_config
 from ui import (
+    ask_input,
     console,
     make_error_panel,
     make_llm_panel,
     make_weather_panel,
-    print_banner,
+    play_startup_animation,
     print_goodbye,
     print_memory_cleared,
     print_separator,
     print_summary,
     print_uninstall_done,
     process_with_live,
-    ask_input,
 )
 
 
@@ -123,7 +123,7 @@ def main():
         return_intermediate_steps=True,
     )
 
-    print_banner(config)
+    play_startup_animation(config)
 
     while True:
         try:
