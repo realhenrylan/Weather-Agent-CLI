@@ -1,6 +1,7 @@
 import sys
 import io
 import argparse
+import warnings
 
 # 确保 stdout 使用 UTF-8 编码（Windows 需要，Linux/macOS 已默认 UTF-8）
 if sys.stdout.encoding != "utf-8":
@@ -13,8 +14,10 @@ if sys.stdout.encoding != "utf-8":
 
 import requests
 from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain.memory import ConversationBufferMemory
 from langchain.prompts import ChatPromptTemplate
 from langchain.tools import tool
+from langchain_core._api import LangChainDeprecationWarning
 from langchain_openai import ChatOpenAI
 
 from config import load_config, setup_config
@@ -96,14 +99,19 @@ def main():
                 "system",
                 "你是一个智能天气助手，可以查询任意城市的实时天气。当用户询问天气时，使用 get_weather 工具查询。如果是非天气相关的闲聊，直接回答。",
             ),
+            ("placeholder", "{chat_history}"),
             ("user", "{input}"),
             ("placeholder", "{agent_scratchpad}"),
         ]
     )
+    # 记忆系统：让 agent 记住对话历史（查过的城市、用户姓名等）
+    warnings.filterwarnings("ignore", category=LangChainDeprecationWarning)
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
     agent = create_tool_calling_agent(llm, tools, prompt)
     executor = AgentExecutor(
         agent=agent,
         tools=tools,
+        memory=memory,
         verbose=args.debug,
         max_iterations=5,
         return_intermediate_steps=True,
